@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, send_from_directory
 import os
 import json
 import uuid
@@ -16,6 +16,12 @@ from .validators import (
 from .face_utils import detect_and_encode_face, compare_faces, compare_faces_with_all
 
 api = Blueprint('api', __name__)
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+@api.route('/test', methods=['GET'])
+def test_page():
+    return send_from_directory(BASE_DIR, 'test_mobile.html')
 
 
 def _delete_upload_file(filename, upload_path):
