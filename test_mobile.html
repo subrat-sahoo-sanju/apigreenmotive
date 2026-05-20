@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Motive - Face Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        .section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        label { display: block; margin: 10px 0 5px; font-weight: bold; }
+        input[type="text"], input[type="email"], input[type="file"] { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        button.verify { background: #2196F3; }
+        button:disabled { background: #ccc; }
+        #preview { width: 100%; max-height: 300px; object-fit: contain; margin: 10px 0; display: none; border-radius: 5px; }
+        .result { padding: 10px; margin-top: 10px; border-radius: 5px; display: none; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .loading { text-align: center; color: #666; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📱 Face Recognition Test</h2>
+
+    <!-- REGISTER SECTION -->
+    <div class="section">
+        <h3>📝 Register Student</h3>
+        <input type="text" id="reg_id" placeholder="Student ID (e.g. STU001)">
+        <input type="text" id="reg_name" placeholder="Name">
+        <input type="email" id="reg_email" placeholder="Email">
+        <input type="text" id="reg_phone" placeholder="Phone (optional)">
+        <input type="text" id="reg_course" placeholder="Course (optional)">
+        
+        <label>📸 Take Photo for Registration:</label>
+        <input type="file" id="reg_file" accept="image/*" capture="user" onchange="previewImage(this, 'reg_preview')">
+        <img id="reg_preview">
+        
+        <button onclick="registerStudent()" id="reg_btn">Register</button>
+        <div id="reg_loading" class="loading">Processing...</div>
+        <div id="reg_result" class="result"></div>
+    </div>
+
+    <!-- VERIFY SECTION -->
+    <div class="section">
+        <h3>🔍 Verify Student</h3>
+        <label>📸 Take Photo for Verification:</label>
+        <input type="file" id="ver_file" accept="image/*" capture="user" onchange="previewImage(this, 'ver_preview')">
+        <img id="ver_preview">
+        
+        <button onclick="verifyStudent()" class="verify" id="ver_btn">Verify</button>
+        <div id="ver_loading" class="loading">Processing...</div>
+        <div id="ver_result" class="result"></div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://apigreenmotive--skssanju9.replit.app/api';
+
+    function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    async function registerStudent() {
+        const btn = document.getElementById('reg_btn');
+        const loading = document.getElementById('reg_loading');
+        const resultDiv = document.getElementById('reg_result');
+        
+        const fileInput = document.getElementById('reg_file');
+        if (!fileInput.files[0]) {
+            alert('Please take a photo first!');
+            return;
+        }
+
+        btn.disabled = true;
+        loading.style.display = 'block';
+        resultDiv.style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('student_id', document.getElementById('reg_id').value);
+        formData.append('name', document.getElementById('reg_name').value);
+        formData.append('email', document.getElementById('reg_email').value);
+        formData.append('phone', document.getElementById('reg_phone').value);
+        formData.append('course', document.getElementById('reg_course').value);
+        formData.append('face_image', fileInput.files[0]);
+
+        try {
+            const response = await fetch(`${API_URL}/register`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            resultDiv.className = 'result ' + (data.success ? 'success' : 'error');
+            resultDiv.innerText = data.message + (data.error_details ? '\n' + data.error_details : '');
+            resultDiv.style.display = 'block';
+        } catch (err) {
+            resultDiv.className = 'result error';
+            resultDiv.innerText = 'Error: ' + err.message;
+            resultDiv.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            loading.style.display = 'none';
+        }
+    }
+
+    async function verifyStudent() {
+        const btn = document.getElementById('ver_btn');
+        const loading = document.getElementById('ver_loading');
+        const resultDiv = document.getElementById('ver_result');
+        
+        const fileInput = document.getElementById('ver_file');
+        if (!fileInput.files[0]) {
+            alert('Please take a photo first!');
+            return;
+        }
+
+        btn.disabled = true;
+        loading.style.display = 'block';
+        resultDiv.style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('face_image', fileInput.files[0]);
+
+        try {
+            const response = await fetch(`${API_URL}/verify`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            resultDiv.className = 'result ' + (data.success && data.verified ? 'success' : 'error');
+            let msg = data.message;
+            if (data.student) {
+                msg += `\nStudent: ${data.student.name} (${data.student.student_id})`;
+            }
+            msg += `\nConfidence: ${data.confidence}%`;
+            
+            resultDiv.innerText = msg;
+            resultDiv.style.display = 'block';
+        } catch (err) {
+            resultDiv.className = 'result error';
+            resultDiv.innerText = 'Error: ' + err.message;
+            resultDiv.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            loading.style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>

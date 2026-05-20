@@ -1,9 +1,22 @@
 {
   "info": {
-    "name": "Green Motive - Face Recognition API",
+    "name": "Green Motive - Face Recognition API (Replit)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://apigreenmotive--skssanju9.replit.app/api/health",
+          "protocol": "https",
+          "host": ["apigreenmotive--skssanju9", "replit", "app"],
+          "path": ["api", "health"]
+        }
+      }
+    },
     {
       "name": "Register Student",
       "request": {
@@ -45,10 +58,9 @@
           ]
         },
         "url": {
-          "raw": "http://localhost:5000/api/register",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
+          "raw": "https://apigreenmotive--skssanju9.replit.app/api/register",
+          "protocol": "https",
+          "host": ["apigreenmotive--skssanju9", "replit", "app"],
           "path": ["api", "register"]
         }
       }
@@ -69,10 +81,9 @@
           ]
         },
         "url": {
-          "raw": "http://localhost:5000/api/verify",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
+          "raw": "https://apigreenmotive--skssanju9.replit.app/api/verify",
+          "protocol": "https",
+          "host": ["apigreenmotive--skssanju9", "replit", "app"],
           "path": ["api", "verify"]
         }
       }
@@ -98,10 +109,9 @@
           ]
         },
         "url": {
-          "raw": "http://localhost:5000/api/verify",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
+          "raw": "https://apigreenmotive--skssanju9.replit.app/api/verify",
+          "protocol": "https",
+          "host": ["apigreenmotive--skssanju9", "replit", "app"],
           "path": ["api", "verify"]
         }
       }
@@ -112,10 +122,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/students",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
+          "raw": "https://apigreenmotive--skssanju9.replit.app/api/students",
+          "protocol": "https",
+          "host": ["apigreenmotive--skssanju9", "replit", "app"],
           "path": ["api", "students"]
         }
       }
@@ -126,10 +135,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/students/STU001",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
+          "raw": "https://apigreenmotive--skssanju9.replit.app/api/students/STU001",
+          "protocol": "https",
+          "host": ["apigreenmotive--skssanju9", "replit", "app"],
           "path": ["api", "students", "STU001"]
         }
       }
@@ -140,25 +148,10 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/students/STU001",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
+          "raw": "https://apigreenmotive--skssanju9.replit.app/api/students/STU001",
+          "protocol": "https",
+          "host": ["apigreenmotive--skssanju9", "replit", "app"],
           "path": ["api", "students", "STU001"]
-        }
-      }
-    },
-    {
-      "name": "Health Check",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/api/health",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["api", "health"]
         }
       }
     }
