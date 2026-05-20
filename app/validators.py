@@ -146,7 +146,7 @@ def validate_image_content(file_path):
         return 'Image too bright. Please reduce lighting'
 
     blur_score = cv2.Laplacian(gray, cv2.CV_64F).var()
-    if blur_score < 50:
+    if blur_score < 20:
         return 'Image is too blurry. Please upload a clearer image'
 
     return None
@@ -179,7 +179,7 @@ def validate_face_quality(image_path):
         return False, 'Face is too dark. Please improve lighting', None
 
     face_blur = cv2.Laplacian(gray_face, cv2.CV_64F).var()
-    if face_blur < 30:
+    if face_blur < 10:
         return False, 'Face is blurry. Please upload a sharper image', None
 
     face_encodings = face_recognition.face_encodings(image, face_locations)
