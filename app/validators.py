@@ -4,12 +4,12 @@ import cv2
 from PIL import Image
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB (allows high-res mobile photos)
 MIN_FILE_SIZE = 1024  # 1KB
 MIN_IMAGE_WIDTH = 200
 MIN_IMAGE_HEIGHT = 200
-MAX_IMAGE_WIDTH = 4096
-MAX_IMAGE_HEIGHT = 4096
+MAX_IMAGE_WIDTH = 10000  # Increased for high-res mobile cameras
+MAX_IMAGE_HEIGHT = 10000  # Increased for high-res mobile cameras
 MIN_FACE_SIZE = 80  # Minimum face size in pixels
 
 STUDENT_ID_PATTERN = re.compile(r'^[A-Za-z0-9_-]{3,50}$')

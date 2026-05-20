@@ -13,6 +13,6 @@ class Config:
         'connect_args': {'connect_timeout': 10}
     }
     UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads'))
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+    MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB
     FACE_TOLERANCE = 0.6
     DETECTION_THRESHOLD = 0.5
