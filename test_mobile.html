@@ -1,164 +1,433 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Motive - Face Test</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; }
-        .section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
-        label { display: block; margin: 10px 0 5px; font-weight: bold; }
-        input[type="text"], input[type="email"], input[type="file"] { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        button.verify { background: #2196F3; }
-        button:disabled { background: #ccc; }
-        #preview { width: 100%; max-height: 300px; object-fit: contain; margin: 10px 0; display: none; border-radius: 5px; }
-        .result { padding: 10px; margin-top: 10px; border-radius: 5px; display: none; }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .loading { text-align: center; color: #666; display: none; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Green Motive — Face Recognition</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d2e;
+      --card2: #20243a;
+      --accent: #6c63ff;
+      --accent2: #00d4aa;
+      --danger: #ff4f6d;
+      --text: #e8eaf6;
+      --muted: #7b7f9e;
+      --border: #2a2d45;
+      --success-bg: #0d2e26;
+      --success-text: #00d4aa;
+      --error-bg: #2e0d14;
+      --error-text: #ff4f6d;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 24px 0 20px;
+    }
+    .header .logo {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 14px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 24px; margin-bottom: 12px;
+    }
+    .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .header p  { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    .tabs {
+      display: flex; gap: 8px;
+      background: var(--card);
+      border-radius: 12px;
+      padding: 6px;
+      margin-bottom: 20px;
+    }
+    .tab {
+      flex: 1; padding: 10px;
+      border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+      background: transparent; color: var(--muted);
+    }
+    .tab.active {
+      background: linear-gradient(135deg, var(--accent), #8b83ff);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(108,99,255,.35);
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 11px; font-weight: 600;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.8px; margin-bottom: 14px;
+    }
+
+    .field { margin-bottom: 12px; }
+    .field label {
+      display: block; font-size: 11px;
+      color: var(--muted); margin-bottom: 5px;
+      font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .field input[type="text"],
+    .field input[type="email"] {
+      width: 100%; padding: 11px 14px;
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text);
+      font-size: 14px; outline: none;
+      transition: border-color .2s;
+    }
+    .field input:focus { border-color: var(--accent); }
+    .field input::placeholder { color: #3d4168; }
+
+    .photo-area {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .photo-area:hover { border-color: var(--accent); background: rgba(108,99,255,.04); }
+    .photo-area input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .photo-area .icon { font-size: 30px; margin-bottom: 8px; }
+    .photo-area .label { font-size: 13px; color: var(--text); font-weight: 500; }
+    .photo-area .sublabel { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    .preview-wrap {
+      display: none; position: relative;
+      border-radius: 12px; overflow: hidden; margin-top: 12px;
+    }
+    .preview-wrap img {
+      width: 100%; max-height: 160px;
+      object-fit: cover; display: block; border-radius: 12px;
+    }
+    .remove-btn {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(0,0,0,.65); border: none;
+      color: #fff; border-radius: 50%;
+      width: 28px; height: 28px; font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    .btn {
+      width: 100%; padding: 14px;
+      border: none; border-radius: 12px;
+      font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all .2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 4px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #8b83ff);
+      color: #fff; box-shadow: 0 4px 20px rgba(108,99,255,.4);
+    }
+    .btn-primary:hover  { transform: translateY(-1px); box-shadow: 0 6px 25px rgba(108,99,255,.5); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-verify {
+      background: linear-gradient(135deg, var(--accent2), #00b899);
+      color: #fff; box-shadow: 0 4px 20px rgba(0,212,170,.35);
+    }
+    .btn-verify:hover  { transform: translateY(-1px); box-shadow: 0 6px 25px rgba(0,212,170,.45); }
+    .btn:disabled { opacity:.5; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
+
+    .spinner {
+      display: none; text-align: center;
+      padding: 14px; color: var(--muted); font-size: 13px;
+    }
+    .spinner::before {
+      content: ''; display: inline-block;
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin-right: 8px; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .result {
+      display: none; border-radius: 12px;
+      padding: 16px; margin-top: 14px;
+      animation: fadeUp .3s ease;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    .result.success { background: var(--success-bg); border: 1px solid rgba(0,212,170,.2); }
+    .result.error   { background: var(--error-bg);   border: 1px solid rgba(255,79,109,.2); }
+
+    .result-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+    }
+    .result-icon  { font-size: 20px; }
+    .result-title { font-size: 15px; font-weight: 700; }
+    .result.success .result-title { color: var(--success-text); }
+    .result.error   .result-title { color: var(--error-text); }
+
+    .student-card {
+      background: rgba(255,255,255,.04);
+      border-radius: 10px; padding: 12px;
+    }
+    .student-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+    }
+    .student-row:last-child { border-bottom: none; }
+    .student-row .k { color: var(--muted); }
+    .student-row .v { color: var(--text); font-weight: 600; text-align: right; max-width: 60%; word-break: break-all; }
+
+    .confidence-bar { margin-top: 14px; }
+    .conf-labels {
+      display: flex; justify-content: space-between;
+      font-size: 12px; margin-bottom: 6px;
+    }
+    .conf-labels .k  { color: var(--muted); }
+    .conf-labels .pct { font-weight: 700; }
+    .conf-labels .pct.high { color: var(--success-text); }
+    .conf-labels .pct.mid  { color: #ffd166; }
+    .conf-labels .pct.low  { color: var(--error-text); }
+    .bar-track { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .bar-fill  { height: 100%; border-radius: 99px; transition: width .6s ease; }
+    .bar-fill.high { background: linear-gradient(90deg, var(--accent2), #00b899); }
+    .bar-fill.mid  { background: linear-gradient(90deg, #ffd166, #ffb347); }
+    .bar-fill.low  { background: linear-gradient(90deg, var(--danger), #ff8fa3); }
+
+    .error-list { list-style: none; margin-top: 2px; }
+    .error-list li {
+      padding: 3px 0; font-size: 13px;
+      color: var(--error-text); display: flex; gap: 6px;
+    }
+    .error-list li::before { content: '›'; font-weight: 700; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 99px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.5px; margin-top: 12px;
+    }
+    .badge-ok  { background: rgba(0,212,170,.15); color: var(--success-text); }
+    .badge-no  { background: rgba(255,79,109,.15); color: var(--error-text); }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>📱 Face Recognition Test</h2>
+<div class="header">
+  <div class="logo">🧠</div>
+  <h1>Green Motive</h1>
+  <p>Face Recognition System</p>
+</div>
 
-    <!-- REGISTER SECTION -->
-    <div class="section">
-        <h3>📝 Register Student</h3>
-        <input type="text" id="reg_id" placeholder="Student ID (e.g. STU001)">
-        <input type="text" id="reg_name" placeholder="Name">
-        <input type="email" id="reg_email" placeholder="Email">
-        <input type="text" id="reg_phone" placeholder="Phone (optional)">
-        <input type="text" id="reg_course" placeholder="Course (optional)">
-        
-        <label>📸 Take Photo for Registration:</label>
-        <input type="file" id="reg_file" accept="image/*" capture="user" onchange="previewImage(this, 'reg_preview')">
-        <img id="reg_preview">
-        
-        <button onclick="registerStudent()" id="reg_btn">Register</button>
-        <div id="reg_loading" class="loading">Processing...</div>
-        <div id="reg_result" class="result"></div>
-    </div>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('register')">📝 Register</button>
+  <button class="tab"        onclick="switchTab('verify')">🔍 Verify</button>
+</div>
 
-    <!-- VERIFY SECTION -->
-    <div class="section">
-        <h3>🔍 Verify Student</h3>
-        <label>📸 Take Photo for Verification:</label>
-        <input type="file" id="ver_file" accept="image/*" capture="user" onchange="previewImage(this, 'ver_preview')">
-        <img id="ver_preview">
-        
-        <button onclick="verifyStudent()" class="verify" id="ver_btn">Verify</button>
-        <div id="ver_loading" class="loading">Processing...</div>
-        <div id="ver_result" class="result"></div>
+<!-- ── REGISTER ── -->
+<div class="panel active" id="panel-register">
+  <div class="card">
+    <div class="card-title">Student Details</div>
+    <div class="field"><label>Student ID</label><input type="text"  id="reg_id"    placeholder="e.g. STU001" /></div>
+    <div class="field"><label>Full Name</label><input type="text"   id="reg_name"  placeholder="e.g. John Doe" /></div>
+    <div class="field"><label>Email</label><input type="email"      id="reg_email" placeholder="e.g. john@example.com" /></div>
+    <div class="field"><label>Phone <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><input type="text" id="reg_phone" placeholder="e.g. +91 9876543210" /></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Face Photo</div>
+    <div class="photo-area" id="reg-area">
+      <input type="file" id="reg_file" accept="image/*" capture="user" onchange="handlePhoto(this,'reg_img','reg-area','reg_wrap')" />
+      <div class="icon">📸</div>
+      <div class="label">Take photo or upload</div>
+      <div class="sublabel">JPG / PNG · max 16 MB</div>
     </div>
+    <div class="preview-wrap" id="reg_wrap">
+      <img id="reg_img" />
+      <button class="remove-btn" onclick="clearPhoto('reg_file','reg_img','reg-area','reg_wrap')">✕</button>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="reg_btn" onclick="registerStudent()">Register Student</button>
+  <div class="spinner" id="reg_spin">Processing face…</div>
+  <div class="result"  id="reg_result"></div>
+</div>
+
+<!-- ── VERIFY ── -->
+<div class="panel" id="panel-verify">
+  <div class="card">
+    <div class="card-title">Face Photo</div>
+    <div class="photo-area" id="ver-area">
+      <input type="file" id="ver_file" accept="image/*" capture="user" onchange="handlePhoto(this,'ver_img','ver-area','ver_wrap')" />
+      <div class="icon">🔍</div>
+      <div class="label">Take photo or upload</div>
+      <div class="sublabel">Searches all registered students</div>
+    </div>
+    <div class="preview-wrap" id="ver_wrap">
+      <img id="ver_img" />
+      <button class="remove-btn" onclick="clearPhoto('ver_file','ver_img','ver-area','ver_wrap')">✕</button>
+    </div>
+  </div>
+
+  <button class="btn btn-verify" id="ver_btn" onclick="verifyStudent()">Identify Student</button>
+  <div class="spinner" id="ver_spin">Scanning face…</div>
+  <div class="result"  id="ver_result"></div>
 </div>
 
 <script>
-    const API_URL = 'https://apigreenmotive--skssanju9.replit.app/api';
+  const API = 'https://apigreenmotive--skssanju9.replit.app/api';
 
-    function previewImage(input, previewId) {
-        const preview = document.getElementById(previewId);
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
+  function switchTab(t) {
+    document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active',(t==='register'&&i===0)||(t==='verify'&&i===1)));
+    document.getElementById('panel-register').classList.toggle('active', t==='register');
+    document.getElementById('panel-verify').classList.toggle('active',   t==='verify');
+  }
+
+  function handlePhoto(inp, imgId, areaId, wrapId) {
+    if (!inp.files || !inp.files[0]) return;
+    const r = new FileReader();
+    r.onload = e => {
+      document.getElementById(imgId).src = e.target.result;
+      document.getElementById(wrapId).style.display = 'block';
+      document.getElementById(areaId).style.display  = 'none';
+    };
+    r.readAsDataURL(inp.files[0]);
+  }
+
+  function clearPhoto(fileId, imgId, areaId, wrapId) {
+    document.getElementById(fileId).value = '';
+    document.getElementById(imgId).src    = '';
+    document.getElementById(wrapId).style.display = 'none';
+    document.getElementById(areaId).style.display  = 'block';
+  }
+
+  function busy(p, on) {
+    document.getElementById(p+'_btn').disabled = on;
+    document.getElementById(p+'_spin').style.display = on ? 'block' : 'none';
+    if (on) document.getElementById(p+'_result').style.display = 'none';
+  }
+
+  function showErr(p, title, errors) {
+    let html = `<div class="result-header"><span class="result-icon">❌</span><span class="result-title">${title}</span></div>`;
+    if (errors && typeof errors === 'object' && !Array.isArray(errors)) {
+      html += '<ul class="error-list">';
+      Object.entries(errors).forEach(([f,msgs]) => (Array.isArray(msgs)?msgs:[msgs]).forEach(m => m && (html += `<li><b>${f}:</b> ${m}</li>`)));
+      html += '</ul>';
+    } else if (errors) {
+      html += `<ul class="error-list"><li>${errors}</li></ul>`;
     }
+    const el = document.getElementById(p+'_result');
+    el.className = 'result error'; el.innerHTML = html; el.style.display = 'block';
+  }
 
-    async function registerStudent() {
-        const btn = document.getElementById('reg_btn');
-        const loading = document.getElementById('reg_loading');
-        const resultDiv = document.getElementById('reg_result');
-        
-        const fileInput = document.getElementById('reg_file');
-        if (!fileInput.files[0]) {
-            alert('Please take a photo first!');
-            return;
-        }
+  function confLevel(pct) { return pct >= 75 ? 'high' : pct >= 50 ? 'mid' : 'low'; }
 
-        btn.disabled = true;
-        loading.style.display = 'block';
-        resultDiv.style.display = 'none';
+  async function registerStudent() {
+    const id    = document.getElementById('reg_id').value.trim();
+    const name  = document.getElementById('reg_name').value.trim();
+    const email = document.getElementById('reg_email').value.trim();
+    const phone = document.getElementById('reg_phone').value.trim();
+    const file  = document.getElementById('reg_file').files[0];
+    if (!id || !name || !email) { showErr('reg','Missing fields',{info:['Student ID, Name and Email are required']}); return; }
+    if (!file)                   { showErr('reg','Photo required',{face_image:['Please take or upload a photo']}); return; }
 
-        const formData = new FormData();
-        formData.append('student_id', document.getElementById('reg_id').value);
-        formData.append('name', document.getElementById('reg_name').value);
-        formData.append('email', document.getElementById('reg_email').value);
-        formData.append('phone', document.getElementById('reg_phone').value);
-        formData.append('course', document.getElementById('reg_course').value);
-        formData.append('face_image', fileInput.files[0]);
+    busy('reg', true);
+    const fd = new FormData();
+    fd.append('student_id', id); fd.append('name', name);
+    fd.append('email', email);   if (phone) fd.append('phone', phone);
+    fd.append('face_image', file);
 
-        try {
-            const response = await fetch(`${API_URL}/register`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            
-            resultDiv.className = 'result ' + (data.success ? 'success' : 'error');
-            resultDiv.innerText = data.message + (data.error_details ? '\n' + data.error_details : '');
-            resultDiv.style.display = 'block';
-        } catch (err) {
-            resultDiv.className = 'result error';
-            resultDiv.innerText = 'Error: ' + err.message;
-            resultDiv.style.display = 'block';
-        } finally {
-            btn.disabled = false;
-            loading.style.display = 'none';
-        }
-    }
+    try {
+      const data = await fetch(`${API}/register`,{method:'POST',body:fd}).then(r=>r.json());
+      if (data.success) {
+        const s   = data.data;
+        const el  = document.getElementById('reg_result');
+        el.className = 'result success';
+        el.innerHTML = `
+          <div class="result-header"><span class="result-icon">✅</span><span class="result-title">Registered Successfully</span></div>
+          <div class="student-card">
+            <div class="student-row"><span class="k">Student ID</span><span class="v">${s.student_id}</span></div>
+            <div class="student-row"><span class="k">Name</span><span class="v">${s.name}</span></div>
+            <div class="student-row"><span class="k">Email</span><span class="v">${s.email}</span></div>
+            ${s.phone?`<div class="student-row"><span class="k">Phone</span><span class="v">${s.phone}</span></div>`:''}
+            <div class="student-row"><span class="k">Enrolled</span><span class="v">${new Date(s.enrollment_date).toLocaleDateString()}</span></div>
+          </div>
+          <span class="badge badge-ok">✔ Student Added</span>`;
+        el.style.display = 'block';
+      } else {
+        showErr('reg', data.message || 'Registration failed', data.errors || data.error_details);
+      }
+    } catch(e) { showErr('reg','Network error',{info:[e.message]}); }
+    finally     { busy('reg', false); }
+  }
 
-    async function verifyStudent() {
-        const btn = document.getElementById('ver_btn');
-        const loading = document.getElementById('ver_loading');
-        const resultDiv = document.getElementById('ver_result');
-        
-        const fileInput = document.getElementById('ver_file');
-        if (!fileInput.files[0]) {
-            alert('Please take a photo first!');
-            return;
-        }
+  async function verifyStudent() {
+    const file = document.getElementById('ver_file').files[0];
+    if (!file) { showErr('ver','Photo required',{face_image:['Please take or upload a photo']}); return; }
 
-        btn.disabled = true;
-        loading.style.display = 'block';
-        resultDiv.style.display = 'none';
+    busy('ver', true);
+    const fd = new FormData(); fd.append('face_image', file);
 
-        const formData = new FormData();
-        formData.append('face_image', fileInput.files[0]);
+    try {
+      const data = await fetch(`${API}/verify`,{method:'POST',body:fd}).then(r=>r.json());
+      const el   = document.getElementById('ver_result');
+      const pct  = parseFloat(data.confidence) || 0;
+      const lv   = confLevel(pct);
 
-        try {
-            const response = await fetch(`${API_URL}/verify`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            
-            resultDiv.className = 'result ' + (data.success && data.verified ? 'success' : 'error');
-            let msg = data.message;
-            if (data.student) {
-                msg += `\nStudent: ${data.student.name} (${data.student.student_id})`;
-            }
-            msg += `\nConfidence: ${data.confidence}%`;
-            
-            resultDiv.innerText = msg;
-            resultDiv.style.display = 'block';
-        } catch (err) {
-            resultDiv.className = 'result error';
-            resultDiv.innerText = 'Error: ' + err.message;
-            resultDiv.style.display = 'block';
-        } finally {
-            btn.disabled = false;
-            loading.style.display = 'none';
-        }
-    }
+      if (data.success && data.verified && data.student) {
+        const s = data.student;
+        el.className = 'result success';
+        el.innerHTML = `
+          <div class="result-header"><span class="result-icon">✅</span><span class="result-title">Student Identified</span></div>
+          <div class="student-card">
+            <div class="student-row"><span class="k">Student ID</span><span class="v">${s.student_id}</span></div>
+            <div class="student-row"><span class="k">Name</span><span class="v">${s.name}</span></div>
+            <div class="student-row"><span class="k">Email</span><span class="v">${s.email}</span></div>
+            ${s.phone?`<div class="student-row"><span class="k">Phone</span><span class="v">${s.phone}</span></div>`:''}
+          </div>
+          <div class="confidence-bar">
+            <div class="conf-labels"><span class="k">Match Confidence</span><span class="pct ${lv}">${pct.toFixed(1)}%</span></div>
+            <div class="bar-track"><div class="bar-fill ${lv}" style="width:${pct}%"></div></div>
+          </div>
+          <span class="badge badge-ok">✔ Verified</span>`;
+      } else if (data.success) {
+        el.className = 'result error';
+        el.innerHTML = `
+          <div class="result-header"><span class="result-icon">❌</span><span class="result-title">Not Identified</span></div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px">${data.message||'No matching student found.'}</div>
+          ${pct>0?`<div class="confidence-bar">
+            <div class="conf-labels"><span class="k">Best Match</span><span class="pct ${lv}">${pct.toFixed(1)}%</span></div>
+            <div class="bar-track"><div class="bar-fill ${lv}" style="width:${pct}%"></div></div>
+          </div>`:''}
+          <span class="badge badge-no">✗ Unverified</span>`;
+      } else {
+        showErr('ver', data.message || 'Verification failed', data.errors || data.error_details);
+      }
+      el.style.display = 'block';
+    } catch(e) { showErr('ver','Network error',{info:[e.message]}); }
+    finally     { busy('ver', false); }
+  }
 </script>
-
 </body>
 </html>
