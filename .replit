@@ -36,5 +36,5 @@ waitForPort = 5000
 outputType = "webview"
 
 [deployment]
-deploymentTarget = "cloudrun"
-run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "run:app"]
+deploymentTarget = "autoscale"
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "--timeout=120", "run:app"]
